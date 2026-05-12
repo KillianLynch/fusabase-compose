@@ -1,0 +1,75 @@
+-- Oracle Database First-Time Setup
+-- This script runs once on initial container startup
+
+SET ECHO ON
+SET FEEDBACK ON
+
+-------------------------------------------------
+-- 1. Set passwords for system users
+-------------------------------------------------
+ALTER USER SYS IDENTIFIED BY Welcome12345;
+ALTER USER SYSTEM IDENTIFIED BY Welcome12345;
+ALTER SESSION SET CONTAINER = freepdb1;
+ALTER USER PDBADMIN IDENTIFIED BY Welcome12345;
+
+-------------------------------------------------
+-- 2. Configure max_string_size = EXTENDED
+-------------------------------------------------
+ALTER SESSION SET CONTAINER = CDB$ROOT;
+ALTER PLUGGABLE DATABASE freepdb1 CLOSE;
+ALTER PLUGGABLE DATABASE freepdb1 OPEN UPGRADE;
+ALTER SESSION SET CONTAINER = freepdb1;
+ALTER SYSTEM SET max_string_size = extended;
+@?/rdbms/admin/utl32k.sql
+ALTER SESSION SET CONTAINER = CDB$ROOT;
+ALTER PLUGGABLE DATABASE freepdb1 CLOSE;
+ALTER PLUGGABLE DATABASE freepdb1 OPEN;
+
+-------------------------------------------------
+-- 3. Create ORDS test user
+-------------------------------------------------
+ALTER SESSION SET CONTAINER = freepdb1;
+BEGIN
+  EXECUTE IMMEDIATE 'CREATE USER testuser IDENTIFIED BY testpwd QUOTA UNLIMITED ON users';
+  EXECUTE IMMEDIATE 'GRANT connect, resource TO testuser';
+  EXECUTE IMMEDIATE 'GRANT CREATE SESSION, RESOURCE, DBFS_ROLE TO testuser';
+  EXECUTE IMMEDIATE 'GRANT CREATE TABLE, CREATE VIEW, CREATE PROCEDURE TO testuser';
+  EXECUTE IMMEDIATE 'GRANT CREATE ANY DIRECTORY TO testuser';
+  EXECUTE IMMEDIATE 'CREATE USER fusabase_dba IDENTIFIED BY baas QUOTA UNLIMITED ON USERS';
+  EXECUTE IMMEDIATE 'GRANT dba to fusabase_dba';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE = -1920 THEN NULL; END IF; -- User already exists
+END;
+/
+
+-------------------------------------------------
+-- 4. Configure TDE wallet
+-------------------------------------------------
+ALTER SESSION SET CONTAINER = CDB$ROOT;
+
+-- Set wallet_root and compatible version (requires restart)
+ALTER SYSTEM SET wallet_root='/opt/oracle/oradata/FREE' SCOPE=SPFILE;
+ALTER SYSTEM SET compatible='23.9.0' SCOPE=SPFILE;
+SHUTDOWN IMMEDIATE;
+STARTUP;
+
+-- Configure TDE
+ALTER SYSTEM SET tde_configuration='KEYSTORE_CONFIGURATION=FILE' SCOPE=BOTH;
+
+-- Create and open keystore
+ADMINISTER KEY MANAGEMENT CREATE KEYSTORE '/opt/oracle/oradata/FREE/tde' IDENTIFIED BY "Welcome12345";
+ADMINISTER KEY MANAGEMENT SET KEYSTORE OPEN IDENTIFIED BY "Welcome12345" CONTAINER=ALL;
+
+-- Create master encryption key
+ADMINISTER KEY MANAGEMENT SET KEY IDENTIFIED BY "Welcome12345" WITH BACKUP CONTAINER=ALL;
+
+-- Create auto-login wallet for seamless restarts
+ADMINISTER KEY MANAGEMENT CREATE AUTO_LOGIN KEYSTORE FROM KEYSTORE '/opt/oracle/oradata/FREE/tde' IDENTIFIED BY "Welcome12345";
+
+-------------------------------------------------
+-- 5. Verify setup
+-------------------------------------------------
+SELECT status, wallet_type FROM v$encryption_wallet WHERE con_id = 1;
+
+EXIT;

@@ -1,0 +1,6 @@
+.worktrees/
+.playwright-cli/
+.DS_Store
+ords_config/databases/
+ords_config/global/
+ords_config/logs/
