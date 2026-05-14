@@ -23,6 +23,8 @@ The first startup configures the database, installs ORDS, enables Fusabase, and 
 podman compose up -d
 ```
 
+> Docker users: replace `podman` with `docker` in every command in this README — the stack works with either runtime.
+
 The first startup takes longer because the database and ORDS need to initialize.
 
 ## Ports
