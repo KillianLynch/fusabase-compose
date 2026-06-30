@@ -7,7 +7,7 @@ Starter Oracle Database + ORDS + Oracle Backend for Firebase (Fusabase) stack us
 This project starts:
 
 - Oracle Database Free 26ai
-- Oracle REST Data Services (ORDS) 26.1.1
+- Oracle REST Data Services (ORDS) 26.1.2
 - Oracle Backend for Firebase (Fusabase)
 
 The first startup configures the database, installs ORDS, enables Fusabase, and prepares a `testuser` sign-in for the Fusabase console.
@@ -74,7 +74,7 @@ On first startup, this stack automatically:
 
 - sets up the Oracle database users needed by the stack
 - configures TDE
-- installs ORDS 26.1.1 in the database
+- installs ORDS 26.1.2 in the database
 - installs Oracle Backend for Firebase (Fusabase)
 - grants the required Fusabase role to `fusabase_dba`
 - enables `TESTUSER` for Fusabase
