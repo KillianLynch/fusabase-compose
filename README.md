@@ -39,6 +39,11 @@ The first startup takes longer because the database and ORDS need to initialize.
 
 - SYS password: `Welcome12345`
 
+The ORDS container uses `ORACLE_PWD` for the SYS installer connection and
+`ORACLE_USER_PWD` for the internal `ORDS_PUBLIC_USER` proxy account. The
+example uses `Welcome12345` for both; `ORDS_PUBLIC_USER` is not a console
+login.
+
 ### Fusabase demo user
 
 - username: `testuser`
