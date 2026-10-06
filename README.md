@@ -7,7 +7,7 @@ Starter Oracle Database + ORDS + Oracle Backend with Firebase APIs (Fusabase) st
 This project starts:
 
 - Oracle AI Database Free 26ai (23.26.3.0)
-- Oracle REST Data Services (ORDS) 26.2.3
+- Oracle REST Data Services (ORDS) 26.3.0
 - Oracle Backend with Firebase APIs (Fusabase)
 
 The first startup configures the database, installs ORDS, enables Fusabase, and prepares a `testuser` sign-in for the Fusabase console.
